@@ -1,3 +1,4 @@
+using DedicadoEstudo.Data.AutoMapper;
 using DedicadoEstudo.Data.Infraestrutura;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DedicadoEstudoContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAutoMapper(typeof(UsuarioProfile));
 
 var app = builder.Build();
 
