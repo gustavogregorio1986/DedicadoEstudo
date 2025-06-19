@@ -14,6 +14,7 @@ namespace DedicadoEstudo.Data.AutoMapper
         public UsuarioProfile()
         {
             CreateMap<Usuario, UsuarioDTO>();
+            CreateMap<UsuarioDTO, Usuario>();
         }
     }
 }

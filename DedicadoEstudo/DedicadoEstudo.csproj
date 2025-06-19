@@ -27,8 +27,4 @@
     <ProjectReference Include="..\DedicadoEstudo.Service\DedicadoEstudo.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
