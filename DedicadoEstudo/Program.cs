@@ -1,5 +1,9 @@
 using DedicadoEstudo.Data.AutoMapper;
 using DedicadoEstudo.Data.Infraestrutura;
+using DedicadoEstudo.Data.Repository;
+using DedicadoEstudo.Data.Repository.Interface;
+using DedicadoEstudo.Service.Service;
+using DedicadoEstudo.Service.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +16,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DedicadoEstudoContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUsuarioRepsitory, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 builder.Services.AddAutoMapper(typeof(UsuarioProfile));
 
