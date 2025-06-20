@@ -27,10 +27,10 @@ namespace DedicadoEstudo.Data.Mapping
                 .IsRequired()
                 .HasMaxLength(255);
 
-            builder.Property(u => u.Perfil)
-                .HasColumnName("Perfil")
-                .IsRequired()
-                .HasMaxLength(40);
+            builder.Property(u => u.Role)
+               .HasColumnName("Role")
+               .IsRequired()
+               .HasMaxLength(40);
         }
     }
 }

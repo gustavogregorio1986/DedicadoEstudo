@@ -4,6 +4,7 @@ using DedicadoEstudo.Data.Infraestrutura;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DedicadoEstudo.Data.Migrations
 {
     [DbContext(typeof(DedicadoEstudoContext))]
-    partial class DedicadoEstudoContextModelSnapshot : ModelSnapshot
+    [Migration("20250620201819_AdicionarCampoRole")]
+    partial class AdicionarCampoRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,11 +36,14 @@ namespace DedicadoEstudo.Data.Migrations
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("Email");
 
-                    b.Property<string>("Role")
+                    b.Property<string>("Perfil")
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
-                        .HasColumnName("Role");
+                        .HasColumnName("Perfil");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Senha")
                         .IsRequired()

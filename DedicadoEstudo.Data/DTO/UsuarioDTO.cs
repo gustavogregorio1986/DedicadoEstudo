@@ -15,7 +15,5 @@ namespace DedicadoEstudo.Data.DTO
         public string? Senha { get; set; }
 
         public string? Role { get; set; }
-
-        public string? Perfil { get; set; }
     }
 }
