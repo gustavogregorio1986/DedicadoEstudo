@@ -10,5 +10,7 @@ namespace DedicadoEstudo.Data.Repository.Interface
     public interface IUsuarioRepsitory
     {
         Task<Usuario> AdicionarUsuario(Usuario usuario);
+
+        Task<Usuario> ObterPorEmail(string email);
     }
 }

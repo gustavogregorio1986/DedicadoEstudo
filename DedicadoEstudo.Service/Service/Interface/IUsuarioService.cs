@@ -10,5 +10,7 @@ namespace DedicadoEstudo.Service.Service.Interface
     public interface IUsuarioService
     {
         Task<Usuario> AdicionarUsuario(Usuario usuario);
+
+        Task<Usuario> ObterPorEmail(string email);
     }
 }

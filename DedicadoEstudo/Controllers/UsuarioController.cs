@@ -61,7 +61,5 @@ namespace DedicadoEstudo.Controllers
             return new JsonResult(usuarioAdicionado) { StatusCode = StatusCodes.Status201Created };
         }
 
-
-
     }
 }

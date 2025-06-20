@@ -1,6 +1,7 @@
 ﻿using DedicadoEstudo.Data.Infraestrutura;
 using DedicadoEstudo.Data.Repository.Interface;
 using DedicadoEstudo.Dominio.Dominio;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,12 @@ namespace DedicadoEstudo.Data.Repository
             {
                 throw new InvalidOperationException("An error occurred while adding the user.", ex);
             }
+        }
+
+        public async Task<Usuario> ObterPorEmail(string email)
+        {
+            return await _db.Usuarios
+        .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
     }
 }

@@ -22,5 +22,10 @@ namespace DedicadoEstudo.Service.Service
         {
             return await _usuarioRepository.AdicionarUsuario(usuario);
         }
+
+        public async Task<Usuario> ObterPorEmail(string email)
+        {
+            return await _usuarioRepository.ObterPorEmail(email);
+        }
     }
 }
