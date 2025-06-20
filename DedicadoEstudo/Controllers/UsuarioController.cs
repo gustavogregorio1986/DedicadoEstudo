@@ -31,6 +31,19 @@ namespace DedicadoEstudo.Controllers
                 return new JsonResult("Usuário inválido") { StatusCode = StatusCodes.Status400BadRequest };
             }
 
+            // Validações básicas - não deixar campos em branco
+            if (string.IsNullOrWhiteSpace(usuarioDTO.Senha))
+            {
+                return new JsonResult("Senha é obrigatória") { StatusCode = StatusCodes.Status400BadRequest };
+            }
+
+            if (string.IsNullOrWhiteSpace(usuarioDTO.Email))
+            {
+                return new JsonResult("Email é obrigatório") { StatusCode = StatusCodes.Status400BadRequest };
+            }
+
+            // Outras validações que quiser, ex: perfil, nome...
+
             // Criptografar a senha
             var senhaHash = PasswordHasher.HashPassword(usuarioDTO.Senha);
 
@@ -47,6 +60,7 @@ namespace DedicadoEstudo.Controllers
 
             return new JsonResult(usuarioAdicionado) { StatusCode = StatusCodes.Status201Created };
         }
+
 
 
     }
