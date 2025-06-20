@@ -4,7 +4,10 @@ using DedicadoEstudo.Data.Repository;
 using DedicadoEstudo.Data.Repository.Interface;
 using DedicadoEstudo.Service.Service;
 using DedicadoEstudo.Service.Service.Interface;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,25 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DedicadoEstudoContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+var chaveJwt = builder.Configuration["Jwt:ChaveSecreta"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,  // Ajuste conforme seu cenário
+        ValidateAudience = false, // Ajuste conforme seu cenário
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveJwt))
+    };
+});
 
 builder.Services.AddScoped<IUsuarioRepsitory, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
