@@ -15,13 +15,13 @@ namespace DedicadoEstudo.Controllers
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _config;
+        private readonly PasswordHasher _criptografia;
 
-        public UsuarioController(IUsuarioService usuarioService, IMapper mapper, IConfiguration config)
+        public UsuarioController(IUsuarioService usuarioService, IMapper mapper, PasswordHasher criptografia)
         {
             _usuarioService = usuarioService;
             _mapper = mapper;
-            _config = config;
+            _criptografia = criptografia;
         }
 
 
@@ -66,34 +66,24 @@ namespace DedicadoEstudo.Controllers
             { StatusCode = StatusCodes.Status201Created };
         }
 
-
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UsuarioDTO dto)
+        public async Task<IActionResult> Login([FromBody] UsuarioDTO usuarioDTO)
         {
-            var usuario = await _usuarioService.ObterPorEmail(dto.Email);
+            var usuario = await _usuarioService.ObterPorEmail(usuarioDTO.Email);
 
             if (usuario == null)
-                return Unauthorized(new { mensagem = "Email ou senha inválidos." });
+                return Unauthorized("Usuário não encontrado.");
 
-            if (string.IsNullOrWhiteSpace(usuario.SenhaHash) || !usuario.SenhaHash.StartsWith("$2"))
-                return Unauthorized(new { mensagem = "Senha inválida no banco." });
+            if (string.IsNullOrEmpty(usuario.SenhaHash))
+                return StatusCode(500, "Senha não cadastrada para o usuário.");
 
-            bool senhaValida = false;
-            try
-            {
-                senhaValida = BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erro ao validar senha: " + ex.Message);
-                return Unauthorized(new { mensagem = "Erro ao validar senha." });
-            }
+            bool senhaValida = BCrypt.Net.BCrypt.Verify(usuarioDTO.Senha, usuario.SenhaHash);
 
             if (!senhaValida)
-                return Unauthorized(new { mensagem = "Email ou senha inválidos." });
+                return Unauthorized("Senha inválida.");
 
-            var token = JwtHelper.GerarToken(usuario, _config["Jwt:Key"]);
-            return Ok(new { token });
+            // Login válido - prossiga com geração de token ou retorno
+            return Ok("Login efetuado com sucesso.");
         }
 
 
