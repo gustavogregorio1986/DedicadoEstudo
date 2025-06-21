@@ -30,64 +30,81 @@ namespace DedicadoEstudo.Controllers
         public async Task<JsonResult> AdicionarUsuario([FromBody] UsuarioDTO usuarioDTO)
         {
             if (usuarioDTO == null)
-            {
                 return new JsonResult("Usuário inválido") { StatusCode = StatusCodes.Status400BadRequest };
-            }
 
-            // Validações básicas - não deixar campos em branco
             if (string.IsNullOrWhiteSpace(usuarioDTO.Senha))
-            {
                 return new JsonResult("Senha é obrigatória") { StatusCode = StatusCodes.Status400BadRequest };
-            }
 
             if (string.IsNullOrWhiteSpace(usuarioDTO.Email))
-            {
                 return new JsonResult("Email é obrigatório") { StatusCode = StatusCodes.Status400BadRequest };
-            }
 
-            // Outras validações que quiser, ex: perfil, nome...
+            // Verifica se email já existe (melhora a UX)
+            var usuarioExistente = await _usuarioService.ObterPorEmail(usuarioDTO.Email);
+            if (usuarioExistente != null)
+                return new JsonResult("Email já cadastrado") { StatusCode = StatusCodes.Status400BadRequest };
 
-            // Criptografar a senha
-            var senhaHash = PasswordHasher.HashPassword(usuarioDTO.Senha);
+            // Criptografa a senha
+            var senhaHash = BCrypt.Net.BCrypt.HashPassword(usuarioDTO.Senha);
 
-            // Mapear DTO para entidade
+            // Mapear DTO para entidade (assumindo AutoMapper)
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
-            usuario.SenhaHash = senhaHash; // Substitui a senha original pela criptografada
+            usuario.SenhaHash = senhaHash; // Substitui a senha original pela hash
 
+            // Salvar no banco
             var usuarioAdicionado = await _usuarioService.AdicionarUsuario(usuario);
 
             if (usuarioAdicionado == null)
-            {
                 return new JsonResult("Erro ao adicionar usuário") { StatusCode = StatusCodes.Status500InternalServerError };
-            }
 
-            return new JsonResult(usuarioAdicionado) { StatusCode = StatusCodes.Status201Created };
+            // Retorna o usuário criado (pode ocultar senha e outros dados sensíveis)
+            return new JsonResult(new
+            {
+                usuarioAdicionado.Id,
+                usuarioAdicionado.Email,
+                usuarioAdicionado.Role // se tiver
+            })
+            { StatusCode = StatusCodes.Status201Created };
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UsuarioDTO dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Senha))
+                return BadRequest(new { mensagem = "Email e senha são obrigatórios." });
+
             var usuario = await _usuarioService.ObterPorEmail(dto.Email);
 
             if (usuario == null)
-                return Unauthorized(new { mensagem = "Email ou senha inválidos" });
+            {
+                return Unauthorized(new { mensagem = "Email ou senha inválidos." });
+            }
+
+            if (string.IsNullOrEmpty(usuario.SenhaHash) || !usuario.SenhaHash.StartsWith("$2"))
+            {
+                return Unauthorized(new { mensagem = "Senha inválida ou corrompida no banco." });
+            }
 
             bool senhaValida;
             try
             {
                 senhaValida = BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash);
             }
-            catch
+            catch (Exception ex)
             {
-                return Unauthorized(new { mensagem = "Erro ao validar senha" });
+                Console.WriteLine($"Erro ao validar senha: {ex.Message}");
+                return StatusCode(500, new { mensagem = "Erro interno ao validar senha." });
             }
 
             if (!senhaValida)
-                return Unauthorized(new { mensagem = "Email ou senha inválidos" });
+            {
+                return Unauthorized(new { mensagem = "Email ou senha inválidos." });
+            }
 
+            // Gerar JWT
             var token = JwtHelper.GerarToken(usuario, _config["Jwt:Key"]);
-
             return Ok(new { token });
         }
+
     }
 }
