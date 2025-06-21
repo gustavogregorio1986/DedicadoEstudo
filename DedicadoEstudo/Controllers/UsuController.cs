@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DedicadoEstudo.Controllers
 {
-    [Authorize(Roles = "usu")]
+    [Authorize(Roles = "Usu")]
     [ApiController]
-    [Route("usu")]
+    [Route("Usu")]
     public class UsuController : ControllerBase
     {
         [HttpGet("perfil")]

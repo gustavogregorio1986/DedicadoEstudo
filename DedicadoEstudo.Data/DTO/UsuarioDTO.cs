@@ -15,7 +15,7 @@ namespace DedicadoEstudo.Data.DTO
         public string? Email { get; set; }
 
         [Required(ErrorMessage = "Senha é obrigatório")]
-        public string? SenhaHash { get; set; }
+        public string? Senha { get; set; }
 
         [Required(ErrorMessage = "Role é obrigatório")]
         public string? Role { get; set; }

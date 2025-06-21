@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DedicadoEstudo.Controllers
 {
-    [Authorize(Roles = "adm")]
+    [Authorize(Roles = "Adm")]
     [ApiController]
-    [Route("adm")]
+    [Route("Adm")]
     public class AdmController : ControllerBase
     {
         [HttpGet("perfil")]

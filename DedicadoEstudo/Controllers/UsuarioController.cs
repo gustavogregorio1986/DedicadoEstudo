@@ -15,11 +15,13 @@ namespace DedicadoEstudo.Controllers
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
 
-        public UsuarioController(IUsuarioService usuarioService, IMapper mapper)
+        public UsuarioController(IUsuarioService usuarioService, IMapper mapper, IConfiguration config)
         {
             _usuarioService = usuarioService;
             _mapper = mapper;
+            _config = config;
         }
 
 
@@ -33,7 +35,7 @@ namespace DedicadoEstudo.Controllers
             }
 
             // Validações básicas - não deixar campos em branco
-            if (string.IsNullOrWhiteSpace(usuarioDTO.SenhaHash))
+            if (string.IsNullOrWhiteSpace(usuarioDTO.Senha))
             {
                 return new JsonResult("Senha é obrigatória") { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -46,7 +48,7 @@ namespace DedicadoEstudo.Controllers
             // Outras validações que quiser, ex: perfil, nome...
 
             // Criptografar a senha
-            var senhaHash = PasswordHasher.HashPassword(usuarioDTO.SenhaHash);
+            var senhaHash = PasswordHasher.HashPassword(usuarioDTO.Senha);
 
             // Mapear DTO para entidade
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
@@ -65,10 +67,25 @@ namespace DedicadoEstudo.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UsuarioDTO dto)
         {
-            var token = await _usuarioService.Login(dto.Email, dto.SenhaHash);
+            var usuario = await _usuarioService.ObterPorEmail(dto.Email);
 
-            if (token == null)
+            if (usuario == null)
                 return Unauthorized(new { mensagem = "Email ou senha inválidos" });
+
+            bool senhaValida;
+            try
+            {
+                senhaValida = BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash);
+            }
+            catch
+            {
+                return Unauthorized(new { mensagem = "Erro ao validar senha" });
+            }
+
+            if (!senhaValida)
+                return Unauthorized(new { mensagem = "Email ou senha inválidos" });
+
+            var token = JwtHelper.GerarToken(usuario, _config["Jwt:Key"]);
 
             return Ok(new { token });
         }
