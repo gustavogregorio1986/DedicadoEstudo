@@ -12,5 +12,7 @@ namespace DedicadoEstudo.Service.Service.Interface
         Task<Usuario> AdicionarUsuario(Usuario usuario);
 
         Task<Usuario> ObterPorEmail(string email);
+
+        Task<string> Login(string email, string senha);
     }
 }

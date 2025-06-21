@@ -22,7 +22,7 @@ namespace DedicadoEstudo.Data.Mapping
                 .IsRequired()
                 .HasMaxLength(40);
 
-            builder.Property(u => u.Senha)
+            builder.Property(u => u.SenhaHash)
                 .HasColumnName("Senha")
                 .IsRequired()
                 .HasMaxLength(255);

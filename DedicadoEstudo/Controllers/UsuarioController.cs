@@ -2,6 +2,7 @@
 using DedicadoEstudo.Data.DTO;
 using DedicadoEstudo.Dominio.Dominio;
 using DedicadoEstudo.Service.CRiptografia;
+using DedicadoEstudo.Service.JWT;
 using DedicadoEstudo.Service.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace DedicadoEstudo.Controllers
             }
 
             // Validações básicas - não deixar campos em branco
-            if (string.IsNullOrWhiteSpace(usuarioDTO.Senha))
+            if (string.IsNullOrWhiteSpace(usuarioDTO.SenhaHash))
             {
                 return new JsonResult("Senha é obrigatória") { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -45,11 +46,11 @@ namespace DedicadoEstudo.Controllers
             // Outras validações que quiser, ex: perfil, nome...
 
             // Criptografar a senha
-            var senhaHash = PasswordHasher.HashPassword(usuarioDTO.Senha);
+            var senhaHash = PasswordHasher.HashPassword(usuarioDTO.SenhaHash);
 
             // Mapear DTO para entidade
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
-            usuario.Senha = senhaHash; // Substitui a senha original pela criptografada
+            usuario.SenhaHash = senhaHash; // Substitui a senha original pela criptografada
 
             var usuarioAdicionado = await _usuarioService.AdicionarUsuario(usuario);
 
@@ -61,5 +62,17 @@ namespace DedicadoEstudo.Controllers
             return new JsonResult(usuarioAdicionado) { StatusCode = StatusCodes.Status201Created };
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UsuarioDTO dto)
+        {
+            var token = await _usuarioService.Login(dto.Email, dto.SenhaHash);
+
+            if (token == null)
+                // Retorna status 401 Unauthorized com mensagem no corpo da resposta
+                return Unauthorized(new { mensagem = "Email ou senha inválidos" });
+
+            // Se tudo certo, retorna o token
+            return Ok(new { token });
+        }
     }
 }

@@ -2,6 +2,7 @@ using DedicadoEstudo.Data.AutoMapper;
 using DedicadoEstudo.Data.Infraestrutura;
 using DedicadoEstudo.Data.Repository;
 using DedicadoEstudo.Data.Repository.Interface;
+using DedicadoEstudo.Service.CRiptografia;
 using DedicadoEstudo.Service.Service;
 using DedicadoEstudo.Service.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +18,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<PasswordHasher>();
 
 builder.Services.AddDbContext<DedicadoEstudoContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
