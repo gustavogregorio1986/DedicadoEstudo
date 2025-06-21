@@ -68,10 +68,8 @@ namespace DedicadoEstudo.Controllers
             var token = await _usuarioService.Login(dto.Email, dto.SenhaHash);
 
             if (token == null)
-                // Retorna status 401 Unauthorized com mensagem no corpo da resposta
                 return Unauthorized(new { mensagem = "Email ou senha inválidos" });
 
-            // Se tudo certo, retorna o token
             return Ok(new { token });
         }
     }
