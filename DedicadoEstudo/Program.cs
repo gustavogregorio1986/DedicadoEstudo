@@ -42,6 +42,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirAngular",
+        builder => builder
+            .WithOrigins("http://localhost:4200") // URL do Angular
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()); // se estiver usando autenticação com cookies ou JWT
+});
+
 builder.Services.AddScoped<IUsuarioRepsitory, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
