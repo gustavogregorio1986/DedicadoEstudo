@@ -70,41 +70,32 @@ namespace DedicadoEstudo.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UsuarioDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Senha))
-                return BadRequest(new { mensagem = "Email e senha são obrigatórios." });
-
             var usuario = await _usuarioService.ObterPorEmail(dto.Email);
 
             if (usuario == null)
-            {
                 return Unauthorized(new { mensagem = "Email ou senha inválidos." });
-            }
 
-            if (string.IsNullOrEmpty(usuario.SenhaHash) || !usuario.SenhaHash.StartsWith("$2"))
-            {
-                return Unauthorized(new { mensagem = "Senha inválida ou corrompida no banco." });
-            }
+            if (string.IsNullOrWhiteSpace(usuario.SenhaHash) || !usuario.SenhaHash.StartsWith("$2"))
+                return Unauthorized(new { mensagem = "Senha inválida no banco." });
 
-            bool senhaValida;
+            bool senhaValida = false;
             try
             {
                 senhaValida = BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao validar senha: {ex.Message}");
-                return StatusCode(500, new { mensagem = "Erro interno ao validar senha." });
+                Console.WriteLine("Erro ao validar senha: " + ex.Message);
+                return Unauthorized(new { mensagem = "Erro ao validar senha." });
             }
 
             if (!senhaValida)
-            {
                 return Unauthorized(new { mensagem = "Email ou senha inválidos." });
-            }
 
-            // Gerar JWT
             var token = JwtHelper.GerarToken(usuario, _config["Jwt:Key"]);
             return Ok(new { token });
         }
+
 
     }
 }
