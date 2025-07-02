@@ -46,11 +46,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirAngular",
         builder => builder
-            .WithOrigins("http://localhost:4200") // URL do Angular
+            .WithOrigins("http://localhost:4200")
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()); // se estiver usando autenticação com cookies ou JWT
+            .AllowCredentials());
 });
+
 
 builder.Services.AddScoped<IUsuarioRepsitory, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
@@ -66,8 +67,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseCors();
+//app.UseHttpsRedirection();
+
+app.UseCors("PermitirAngular");
+
 app.UseAuthorization();
 
 app.MapControllers();
