@@ -6,6 +6,10 @@ using DedicadoEstudo.Service.JWT;
 using DedicadoEstudo.Service.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace DedicadoEstudo.Controllers
 {
@@ -82,8 +86,26 @@ namespace DedicadoEstudo.Controllers
             if (!senhaValida)
                 return Unauthorized("Senha inválida.");
 
-            // Login válido - prossiga com geração de token ou retorno
-            return Ok("Login efetuado com sucesso.");
+            // ✅ Gere o token aqui
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("iD9CyBNeKRbAFj10Nt7hJdJYscFHiDcEcsjzfiO5oFKkl+hY6Arsp3qdyuKuPnpAH/sLQmW7EoTzb37zwfY0Dw==");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+            new Claim(ClaimTypes.Email, usuario.Email),
+            new Claim("role", usuarioDTO.Role ?? "usuario")
+        }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var generatedToken = tokenHandler.WriteToken(token);
+
+            return Ok(new { token = generatedToken });
         }
 
 
